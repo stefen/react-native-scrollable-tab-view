@@ -218,29 +218,35 @@ const ScrollableTabView = createReactClass({
   renderScrollableContent() {
     if (Platform.OS === 'ios') {
       const scenes = this._composeScenes();
-      return <Animated.ScrollView
-        horizontal
-        pagingEnabled
-        automaticallyAdjustContentInsets={false}
-        contentOffset={{ x: this.props.initialPage * this.state.containerWidth, }}
-        ref={(scrollView) => { this.scrollView = scrollView; }}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { x: this.state.scrollXIOS, }, }, }, ],
-          { useNativeDriver: true, listener: this._onScroll, }
-        )}
-        onMomentumScrollBegin={this._onMomentumScrollBeginAndEnd}
-        onMomentumScrollEnd={this._onMomentumScrollBeginAndEnd}
-        scrollEventThrottle={16}
-        scrollsToTop={false}
-        showsHorizontalScrollIndicator={false}
-        scrollEnabled={!this.props.locked}
-        directionalLockEnabled
-        alwaysBounceVertical={false}
-        keyboardDismissMode="on-drag"
-        {...this.props.contentProps}
-      >
+      return <React.Fragment>
+        {(this.state.currentPage === -1 && this.props.splash) ?
+          this.props.splash : null}
+        <Animated.ScrollView
+          horizontal
+          pagingEnabled
+          automaticallyAdjustContentInsets={false}
+          contentOffset={{x: this.props.initialPage * this.state.containerWidth,}}
+          ref={(scrollView) => {
+            this.scrollView = scrollView;
+          }}
+          onScroll={Animated.event(
+            [{nativeEvent: {contentOffset: {x: this.state.scrollXIOS,},},},],
+            {useNativeDriver: true, listener: this._onScroll,}
+          )}
+          onMomentumScrollBegin={this._onMomentumScrollBeginAndEnd}
+          onMomentumScrollEnd={this._onMomentumScrollBeginAndEnd}
+          scrollEventThrottle={16}
+          scrollsToTop={false}
+          showsHorizontalScrollIndicator={false}
+          scrollEnabled={!this.props.locked}
+          directionalLockEnabled
+          alwaysBounceVertical={false}
+          keyboardDismissMode="on-drag"
+          {...this.props.contentProps}
+        >
           {scenes}
-      </Animated.ScrollView>;
+        </Animated.ScrollView>
+      </React.Fragment>
     } else {
       const scenes = this._composeScenes();
       return <AnimatedViewPagerAndroid
@@ -332,7 +338,7 @@ const ScrollableTabView = createReactClass({
     if (!width || width <= 0 || Math.round(width) === Math.round(this.state.containerWidth)) {
       return;
     }
-    
+
     if (Platform.OS === 'ios') {
       const containerWidthAnimatedValue = new Animated.Value(width);
       // Need to call __makeNative manually to avoid a native animated bug. See
